@@ -1,8 +1,5 @@
-<<<<<<< Updated upstream
 .env
-=======
 .env.production
 .env.development
 ca.pem
->>>>>>> Stashed changes
 node_modules
