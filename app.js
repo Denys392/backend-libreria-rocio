@@ -1,12 +1,14 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+
+dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development' });
+
 import { sequelize } from './models/model.index.js';
 
 import { errorHandler } from './middleware/errorHandler.js';
 import router from './routes/router.js';
 
-dotenv.config();
 
 const app = express();
 

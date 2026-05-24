@@ -1,0 +1,13 @@
+PORT=3000
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=password
+DB_PORT=3306
+NODE_ENV = development
+DB_NAME=libreria_rocio
+JWT_SECRET=miclave
+JWT_REFRESH_SECRET=miclavesecreta
+MYSQL_USE_SSL=false
+MYSQL_CA_CERT=-----BEGIN CERTIFICATE-----\nEA==\n-----END CERTIFICATE-----
+
+

@@ -164,7 +164,7 @@ export const refresh = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken } = req.cookies;
     if (refreshToken) {
       await RefreshToken.destroy({ where: { token: refreshToken } });
     }
