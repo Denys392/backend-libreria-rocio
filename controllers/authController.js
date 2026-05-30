@@ -143,33 +143,54 @@ export const refresh = async (req, res, next) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) return res.sendStatus(401);
 
-    // Verifica en BD
     const found = await RefreshToken.findOne({
       where: { token: refreshToken },
     });
     if (!found || new Date(found.expires_at) < new Date())
-      return res.sendStatus(403);
+      return res.sendStatus(401);
 
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    
     const accessToken = jwt.sign(
       { userId: payload.userId, role: payload.role },
       process.env.JWT_SECRET,
       { expiresIn: "15m" },
     );
     return res.json({ accessToken });
-  } catch {
-    return res.sendStatus(403);
+  } catch (err) {
+    return res.sendStatus(401);
   }
 };
 
 export const logout = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
-    if (refreshToken) {
-      await RefreshToken.destroy({ where: { token: refreshToken } });
+    if (!refreshToken) {
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+      return res.status(200).json({ message: "No refresh token found, but logged out (stateless logout)" });
     }
-    res.json({ message: "Logged out" });
+    
+    const deleted = await RefreshToken.destroy({
+      where: { token: refreshToken },
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    if (deleted > 0) {
+      return res.status(200).json({ message: "Logged out successfully" });
+    } else {
+      return res.status(200).json({ message: "Refresh token already removed or not found, but logout completed" });
+    }
   } catch (err) {
+    console.error("Error during logout:", err);
     next(err);
   }
 };
