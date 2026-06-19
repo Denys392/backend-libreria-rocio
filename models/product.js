@@ -1,0 +1,55 @@
+import { DataTypes, Model } from "sequelize";
+import sequelize from "./sequelize.js";
+
+class Product extends Model {}
+
+Product.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING(150),
+      allowNull: true,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 999.9,
+    },
+    stock: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "categories",
+        key: "id",
+      },
+    },
+    provider_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "providers",
+        key: "id",
+      },
+    },
+  },
+  {
+    sequelize,
+    modelName: "Product",
+    tableName: "products",
+    timestamps: false,
+  },
+);
+
+export default Product;
