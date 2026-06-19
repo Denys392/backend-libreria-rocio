@@ -1,0 +1,1 @@
+Arquitectura: MVC extendido => Layered Architecture (Controller-Service-Repository pattern)
