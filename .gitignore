@@ -3,3 +3,4 @@
 .env.development
 ca.pem
 node_modules
+.clineignore

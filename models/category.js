@@ -13,7 +13,12 @@ Category.init(
     name: {
       type: DataTypes.STRING(100),
       allowNull: true,
+      unique: true,
     },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    }
   },
   {
     sequelize,
