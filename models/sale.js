@@ -1,22 +1,14 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "./sequelize.js";
 
-class RefreshToken extends Model {}
+class Sale extends Model {}
 
-RefreshToken.init(
+Sale.init(
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
-    },
-    token: {
-      type: DataTypes.STRING(512),
-      allowNull: false,
-    },
-    expires_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
     },
     user_id: {
       type: DataTypes.INTEGER,
@@ -26,13 +18,26 @@ RefreshToken.init(
         key: "id",
       },
     },
+    document_type: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+    },
+    total: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     sequelize,
-    modelName: "RefreshToken",
-    tableName: "refresh_tokens",
+    modelName: "Sale",
+    tableName: "sales",
     timestamps: false,
   },
 );
 
-export default RefreshToken;
+export default Sale;

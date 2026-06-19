@@ -4,10 +4,15 @@ import sequelize from './sequelize.js';
 class Role extends Model {}
 
 Role.init({
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
   name: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    unique: true
   }
 }, {
   sequelize,

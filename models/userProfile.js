@@ -1,26 +1,42 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from './sequelize.js';
+import { DataTypes, Model } from "sequelize";
+import sequelize from "./sequelize.js";
 
 class UserProfile extends Model {}
 
-UserProfile.init({
-  nombre: {
-    type: DataTypes.STRING,
-    allowNull: true
+UserProfile.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    nombre: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    direccion: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    telefono: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "users",
+        key: "id",
+      },
+    },
   },
-  direccion: {
-    type: DataTypes.STRING,
-    allowNull: true
+  {
+    sequelize,
+    modelName: "UserProfile",
+    tableName: "user_profiles",
+    timestamps: false,
   },
-  telefono: {
-    type: DataTypes.STRING,
-    allowNull: true
-  }
-}, {
-  sequelize,
-  modelName: 'UserProfile',
-  tableName: 'user_profiles',
-  timestamps: false,
-});
+);
 
 export default UserProfile;

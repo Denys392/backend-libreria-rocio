@@ -7,7 +7,7 @@ const router = Router();
 //users
 
 router.get('/profile', (req, res) => {
-  permitRoles(ROLES.ADMIN, ROLES.DEV, ROLES.CLIENTE),
+  permitRoles(ROLES.ADMIN, ROLES.DEV, ROLES.CLIENT),
   res.json({ message: `Este es tu perfil, usuario ` });
 });
 
