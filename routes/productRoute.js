@@ -25,12 +25,19 @@ import {
 
 const router = Router();
 
-router.get("/", getPublicProducts);
+import { productQuerySchema } from "../utils/schemas/productSchema.js";
+
+router.get(
+  "/", 
+  validate(productQuerySchema, "query"), 
+  getPublicProducts
+);
 
 router.get(
   "/model",
   authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
+  validate(productQuerySchema, "query"),
   getAllProducts,
 );
 

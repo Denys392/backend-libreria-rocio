@@ -6,10 +6,6 @@ export const productRepository = {
     return Product.findByPk(id, options);
   },
 
-  findAll(options = {}) {
-    return Product.findAll(options);
-  },
-
   findByName(name, options = {}) {
     return Product.findOne({
       where: { name },
@@ -43,14 +39,43 @@ export const productRepository = {
     return Product.destroy({ where: { id }, ...options });
   },
 
-  findPublicProducts(options = {}) {
-    return Product.findAll({
-      where: {
-        price: {
-          [Op.ne]: null
-        }
-      },
-      ...options
+  async findPublicProducts(
+    { search = "", limit = 10, page = 1 },
+    options = {},
+  ) {
+    const whereCondition = {
+      price: { [Op.ne]: null },
+    };
+
+    if (search && search.trim() !== "") {
+      whereCondition.name = { [Op.substring]: search.trim() };
+    }
+
+    const offset = (page - 1) * limit;
+
+    return await Product.findAndCountAll({
+      where: whereCondition,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [["name", "ASC"]],
+      ...options,
     });
-  }
+  },
+
+  async findAll({ search = "", limit = 10, page = 1 }, options = {}) {
+    const whereCondition = {};
+
+    if (search && search.trim() !== "") {
+      whereCondition.name = { [Op.substring]: search.trim() };
+    }
+
+    const offset = (page - 1) * limit;
+
+    return await Product.findAndCountAll({
+      where: whereCondition,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      ...options,
+    });
+  },
 };

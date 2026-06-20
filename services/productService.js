@@ -11,12 +11,44 @@ export const productService = {
     return product;
   },
 
-  async getAllProducts() {
-    return await productRepository.findAll();
+  async getAllProducts(queryParams) {
+    const limit = queryParams.limit ? parseInt(queryParams.limit) : 10;
+    const page = queryParams.page ? parseInt(queryParams.page) : 1;
+    const search = queryParams.search || "";
+
+    const { count, rows } = await productRepository.findAll({
+      search,
+      limit,
+      page,
+    });
+
+    return {
+      total_items: count,
+      total_pages: Math.ceil(count / limit),
+      current_page: page,
+      limit,
+      products: rows,
+    };
   },
 
-  async getPublicProducts() {
-    return await productRepository.findPublicProducts();
+  async getPublicProducts(queryParams) {
+    const limit = queryParams.limit ? parseInt(queryParams.limit) : 10;
+    const page = queryParams.page ? parseInt(queryParams.page) : 1;
+    const search = queryParams.search || "";
+
+    const { count, rows } = await productRepository.findPublicProducts({
+      search,
+      limit,
+      page,
+    });
+
+    return {
+      total_items: count,
+      total_pages: Math.ceil(count / limit),
+      current_page: page,
+      limit,
+      products: rows,
+    };
   },
 
   async getProductsByCategoryId(categoryId) {
@@ -25,7 +57,9 @@ export const productService = {
       err.status = 400;
       throw err;
     }
-    return await productRepository.findProductsByCategoryId(parseInt(categoryId));
+    return await productRepository.findProductsByCategoryId(
+      parseInt(categoryId),
+    );
   },
 
   async getProductsByProviderId(providerId) {
@@ -34,7 +68,9 @@ export const productService = {
       err.status = 400;
       throw err;
     }
-    return await productRepository.findProductsByProviderId(parseInt(providerId));
+    return await productRepository.findProductsByProviderId(
+      parseInt(providerId),
+    );
   },
 
   async createProduct(productData) {
@@ -55,11 +91,19 @@ export const productService = {
 
     return await productRepository.createProduct({
       name: normalizedName,
-      description: productData.description ? productData.description.trim() : null,
-      price: productData.price !== undefined ? parseFloat(productData.price) : null,
+      description: productData.description
+        ? productData.description.trim()
+        : null,
+      price:
+        productData.price !== undefined ? parseFloat(productData.price) : null,
       stock: productData.stock !== undefined ? parseInt(productData.stock) : 0,
-      category_id: productData.category_id ? parseInt(productData.category_id) : null,
-      provider_id: productData.provider_id ? parseInt(productData.provider_id) : null,
+      image: productData.image ? productData.image.trim() : null, // <--- NUEVA ASIGNACIÓN
+      category_id: productData.category_id
+        ? parseInt(productData.category_id)
+        : null,
+      provider_id: productData.provider_id
+        ? parseInt(productData.provider_id)
+        : null,
     });
   },
 
@@ -75,7 +119,8 @@ export const productService = {
         throw err;
       }
       const normalizedName = productData.name.trim();
-      const existingProduct = await productRepository.findByName(normalizedName);
+      const existingProduct =
+        await productRepository.findByName(normalizedName);
 
       if (existingProduct && existingProduct.id !== parseInt(id)) {
         const err = new Error("A product with this name already exists");
@@ -86,7 +131,9 @@ export const productService = {
     }
 
     if (productData.description !== undefined) {
-      updateData.description = productData.description ? productData.description.trim() : null;
+      updateData.description = productData.description
+        ? productData.description.trim()
+        : null;
     }
     if (productData.price !== undefined) {
       updateData.price = parseFloat(productData.price);
@@ -94,11 +141,18 @@ export const productService = {
     if (productData.stock !== undefined) {
       updateData.stock = parseInt(productData.stock);
     }
+    if (productData.image !== undefined) {
+      updateData.image = productData.image ? productData.image.trim() : null;
+    }
     if (productData.category_id !== undefined) {
-      updateData.category_id = productData.category_id ? parseInt(productData.category_id) : null;
+      updateData.category_id = productData.category_id
+        ? parseInt(productData.category_id)
+        : null;
     }
     if (productData.provider_id !== undefined) {
-      updateData.provider_id = productData.provider_id ? parseInt(productData.provider_id) : null;
+      updateData.provider_id = productData.provider_id
+        ? parseInt(productData.provider_id)
+        : null;
     }
 
     await productRepository.updateProduct(id, updateData);

@@ -1,4 +1,4 @@
-import { productService } from '../services/productService.js';
+import { productService } from "../services/productService.js";
 
 export const getProductById = async (req, res, next) => {
   try {
@@ -12,8 +12,8 @@ export const getProductById = async (req, res, next) => {
 
 export const getAllProducts = async (req, res, next) => {
   try {
-    const products = await productService.getAllProducts();
-    return res.status(200).json(products);
+    const result = await productService.getAllProducts(req.query);
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -31,8 +31,8 @@ export const getProductsByCategoryId = async (req, res, next) => {
 
 export const getPublicProducts = async (req, res, next) => {
   try {
-    const products = await productService.getPublicProducts();
-    return res.status(200).json(products);
+    const result = await productService.getPublicProducts(req.query);
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }

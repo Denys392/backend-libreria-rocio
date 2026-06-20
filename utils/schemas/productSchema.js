@@ -22,6 +22,10 @@ export const createProductSchema = Joi.object({
     "number.integer": "El stock debe ser un número entero.",
     "number.min": "El stock no puede ser un valor negativo.",
   }),
+  image: Joi.string().max(255).allow("", null).optional().messages({
+    "string.base": "La ruta de la imagen debe ser una cadena de texto.",
+    "string.max": "La ruta de la imagen no debe exceder los 255 caracteres.",
+  }),
   category_id: Joi.number()
     .integer()
     .positive()
@@ -61,6 +65,10 @@ export const updateProductSchema = Joi.object({
     "number.integer": "El stock debe ser un número entero.",
     "number.min": "El stock no puede ser un valor negativo.",
   }),
+  image: Joi.string().max(255).allow("", null).optional().messages({
+    "string.base": "La ruta de la imagen debe ser una cadena de texto.",
+    "string.max": "La ruta de la imagen no debe exceder los 255 caracteres.",
+  }),
   category_id: Joi.number()
     .integer()
     .positive()
@@ -97,3 +105,19 @@ export const productFilterSchema = (paramName) =>
       "any.required": `El ID es requerido para filtrar los productos.`,
     }),
   });
+
+export const productQuerySchema = Joi.object({
+  search: Joi.string().trim().min(1).max(50).optional().allow("").messages({
+    "string.max": "La búsqueda no debe exceder los 50 caracteres.",
+  }),
+  limit: Joi.number()
+    .integer()
+    .positive()
+    .max(100)
+    .optional()
+    .default(10)
+    .messages({
+      "number.base": "El límite debe ser un número entero.",
+    }),
+  page: Joi.number().integer().positive().optional().default(1),
+});
