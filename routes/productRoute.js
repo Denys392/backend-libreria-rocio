@@ -3,7 +3,14 @@ import { authenticateJWT } from "../middleware/authMiddleware.js";
 import { permitRoles } from "../middleware/roleMiddleware.js";
 import { ROLES } from "../utils/roles.js";
 import validate from "../middleware/validateMiddleware.js";
-import { createProductSchema, updateProductSchema, productIdSchema } from "../utils/schemas/productSchema.js";
+
+//products
+import {
+  createProductSchema,
+  updateProductSchema,
+  productIdSchema,
+  productFilterSchema,
+} from "../utils/schemas/productSchema.js";
 
 import {
   createProduct,
@@ -20,13 +27,30 @@ const router = Router();
 
 router.get("/", getPublicProducts);
 
-//products
 router.get(
   "/model",
   authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
   getAllProducts,
 );
+
+router.get(
+  "/category/:categoryId",
+  authenticateJWT,
+  permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
+  validate(productFilterSchema("categoryId"), "params"),
+  getProductsByCategoryId,
+);
+
+router.get(
+  "/provider/:providerId",
+  authenticateJWT,
+  permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
+  validate(productFilterSchema("providerId"), "params"),
+  getProductsByProviderId,
+);
+
+
 router.get(
   "/:id",
   authenticateJWT,
@@ -42,6 +66,7 @@ router.post(
   validate(createProductSchema, "body"),
   createProduct,
 );
+
 router.put(
   "/:id",
   authenticateJWT,
@@ -50,6 +75,7 @@ router.put(
   validate(updateProductSchema, "body"),
   updateProduct,
 );
+
 router.delete(
   "/:id",
   authenticateJWT,

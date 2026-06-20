@@ -13,26 +13,31 @@ export const createProductSchema = Joi.object({
     "string.base": "La descripción debe ser una cadena de texto.",
     "string.max": "La descripción no debe exceder los {#limit} caracteres.",
   }),
-  price: Joi.number().min(0).precision(2).required().messages({
+  price: Joi.number().min(0).precision(2).allow(null).optional().messages({
     "number.base": "El precio debe ser un valor numérico.",
     "number.min": "El precio no puede ser un número negativo.",
-    "any.required": "El precio del producto es obligatorio.",
   }),
-  stock: Joi.number().integer().min(0).required().messages({
+  stock: Joi.number().integer().min(0).optional().default(0).messages({
     "number.base": "El stock debe ser un valor numérico.",
     "number.integer": "El stock debe ser un número entero.",
     "number.min": "El stock no puede ser un valor negativo.",
-    "any.required": "El stock inicial es obligatorio.",
   }),
-  categoryId: Joi.number().integer().required().messages({
-    "number.base": "El ID de la categoría debe ser un número válido.",
-    "any.required": "La categoría es obligatoria para clasificar el producto.",
-  }),
-  providerId: Joi.number().integer().required().messages({
-    "number.base": "El ID del proveedor debe ser un número válido.",
-    "any.required":
-      "El proveedor es obligatorio para el registro del producto.",
-  }),
+  category_id: Joi.number()
+    .integer()
+    .positive()
+    .allow(null)
+    .optional()
+    .messages({
+      "number.base": "El ID de la categoría debe ser un número válido.",
+    }),
+  provider_id: Joi.number()
+    .integer()
+    .positive()
+    .allow(null)
+    .optional()
+    .messages({
+      "number.base": "El ID del proveedor debe ser un número válido.",
+    }),
 });
 
 export const updateProductSchema = Joi.object({
@@ -47,7 +52,7 @@ export const updateProductSchema = Joi.object({
     "string.base": "La descripción debe ser una cadena de texto.",
     "string.max": "La descripción no debe exceder los {#limit} caracteres.",
   }),
-  price: Joi.number().min(0).precision(2).optional().messages({
+  price: Joi.number().min(0).precision(2).allow(null).optional().messages({
     "number.base": "El precio debe ser un valor numérico.",
     "number.min": "El precio no puede ser un número negativo.",
   }),
@@ -56,12 +61,22 @@ export const updateProductSchema = Joi.object({
     "number.integer": "El stock debe ser un número entero.",
     "number.min": "El stock no puede ser un valor negativo.",
   }),
-  categoryId: Joi.number().integer().optional().messages({
-    "number.base": "El ID de la categoría debe ser un número válido.",
-  }),
-  providerId: Joi.number().integer().optional().messages({
-    "number.base": "El ID del proveedor debe ser un número válido.",
-  }),
+  category_id: Joi.number()
+    .integer()
+    .positive()
+    .allow(null)
+    .optional()
+    .messages({
+      "number.base": "El ID de la categoría debe ser un número válido.",
+    }),
+  provider_id: Joi.number()
+    .integer()
+    .positive()
+    .allow(null)
+    .optional()
+    .messages({
+      "number.base": "El ID del proveedor debe ser un número válido.",
+    }),
 });
 
 export const productIdSchema = Joi.object({
@@ -72,3 +87,13 @@ export const productIdSchema = Joi.object({
     "any.required": "El ID del producto es un parámetro obligatorio.",
   }),
 });
+
+export const productFilterSchema = (paramName) =>
+  Joi.object({
+    [paramName]: Joi.number().integer().positive().required().messages({
+      "number.base": `El ID de búsqueda debe ser un valor numérico.`,
+      "number.integer": `El ID de búsqueda debe ser un número entero.`,
+      "number.positive": `El ID de búsqueda debe ser un número positivo.`,
+      "any.required": `El ID es requerido para filtrar los productos.`,
+    }),
+  });
