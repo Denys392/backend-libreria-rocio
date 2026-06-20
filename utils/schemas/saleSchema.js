@@ -46,3 +46,15 @@ export const createSaleSchema = Joi.object({
       "any.required": "La lista de productos es obligatoria para facturar.",
     }),
 });
+
+export const saleQuerySchema = Joi.object({
+  limit: Joi.number().integer().positive().max(100).optional().default(10),
+  page: Joi.number().integer().positive().optional().default(1),
+});
+
+export const saleIdSchema = Joi.object({
+  id: Joi.number().integer().positive().required().messages({
+    "number.base": "El ID de la venta debe ser un valor numérico.",
+    "any.required": "El ID de la venta es requerido para ver su detalle.",
+  }),
+});

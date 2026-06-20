@@ -17,13 +17,15 @@ export const saleService = {
       !document_type ||
       !validDocuments.includes(document_type.toUpperCase())
     ) {
-      const err = new Error("Invalid document type");
+      const err = new Error("El tipo de comprobante no es válido.");
       err.status = 400;
       throw err;
     }
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-      const err = new Error("Sale must include at least one product item");
+      const err = new Error(
+        "La venta debe incluir al menos un artículo o producto.",
+      );
       err.status = 400;
       throw err;
     }
@@ -36,7 +38,7 @@ export const saleService = {
 
       if (!product) {
         const err = new Error(
-          `Product with ID ${item.product_id} does not exist`,
+          `El producto con el ID ${item.product_id} no existe.`,
         );
         err.status = 404;
         throw err;
@@ -44,7 +46,7 @@ export const saleService = {
 
       if (product.price === null) {
         const err = new Error(
-          `Product '${product.name}' is a base model and cannot be sold without a set public price`,
+          `El producto '${product.name}' es un modelo base y no se puede vender sin un precio público establecido.`,
         );
         err.status = 400;
         throw err;
@@ -52,7 +54,7 @@ export const saleService = {
 
       if (product.stock < parseInt(item.quantity)) {
         const err = new Error(
-          `Insufficient stock for '${product.name}'. Available: ${product.stock}, Requested: ${item.quantity}`,
+          `Stock insuficiente para '${product.name}'. Disponible: ${product.stock}, Solicitado: ${item.quantity}`,
         );
         err.status = 400;
         throw err;
@@ -70,6 +72,7 @@ export const saleService = {
 
     const finalSaleData = {
       user_id: user_id ? parseInt(user_id) : null,
+      document_type: document_type.toUpperCase(),
       total: parseFloat(calculatedTotal.toFixed(2)),
       created_at: new Date(),
     };
@@ -79,5 +82,53 @@ export const saleService = {
 
   async getAllSales() {
     return await saleRepository.findAllSales();
+  },
+
+  async getAllSalesPaginated(queryParams) {
+    const limit = queryParams.limit ? parseInt(queryParams.limit) : 10;
+    const page = queryParams.page ? parseInt(queryParams.page) : 1;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await saleRepository.findAndCountAllSales({
+      limit,
+      offset,
+    });
+
+    return {
+      total_items: count,
+      total_pages: Math.ceil(count / limit),
+      current_page: page,
+      limit,
+      sales: rows,
+    };
+  },
+
+  async getMyPurchasesPaginated(userId, queryParams) {
+    const limit = queryParams.limit ? parseInt(queryParams.limit) : 10;
+    const page = queryParams.page ? parseInt(queryParams.page) : 1;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await saleRepository.findAndCountPurchasesByUserId(
+      userId,
+      { limit, offset },
+    );
+
+    return {
+      total_items: count,
+      total_pages: Math.ceil(count / limit),
+      current_page: page,
+      limit,
+      purchases: rows,
+    };
+  },
+
+  async getSaleDetails(saleId) {
+    const sale = await saleRepository.findSaleByIdComplete(saleId);
+    if (!sale) {
+      const err = new Error("La venta solicitada no existe.");
+      err.status = 404;
+      throw err;
+    }
+    return sale;
   },
 };
