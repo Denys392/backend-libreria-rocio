@@ -1,7 +1,6 @@
-// utils/schemas/authSchema.js
-import Joi from "joi"; // 👈 Cambiado a import moderno
+import Joi from "joi"; 
 
-export const registerSchema = Joi.object({ // 👈 Cambiado a export directo
+export const registerSchema = Joi.object({ 
   username: Joi.string().alphanum().min(3).max(30).required().messages({
     "string.base": "El nombre de usuario debe ser una cadena de texto.",
     "string.alphanum": "El nombre de usuario solo puede contener caracteres alfanuméricos.",
