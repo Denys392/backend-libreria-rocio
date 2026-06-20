@@ -21,6 +21,7 @@ import {
   updateProduct,
   deleteProduct,
   getPublicProducts,
+  getCatalogByCategories,
 } from "../controllers/productController.js";
 
 const router = Router();
@@ -34,6 +35,18 @@ router.get(
 );
 
 router.get(
+  "/catalog-by-categories",
+  getCatalogByCategories
+);
+
+router.get(
+  "/:id",
+  validate(productIdSchema, "params"),
+  getProductById
+);
+
+
+router.get(
   "/model",
   authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
@@ -43,6 +56,13 @@ router.get(
 
 router.get(
   "/category/:categoryId",
+  validate(productFilterSchema("categoryId"), "params"),
+  validate(productQuerySchema, "query"),
+  getProductsByCategoryId
+);
+
+router.get(
+  "/model/category/:categoryId",
   authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
   validate(productFilterSchema("categoryId"), "params"),
@@ -59,7 +79,7 @@ router.get(
 
 
 router.get(
-  "/:id",
+  "/model/:id",
   authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
   validate(productIdSchema, "params"),

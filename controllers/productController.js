@@ -3,7 +3,16 @@ import { productService } from "../services/productService.js";
 export const getProductById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const product = await productService.getProductById(id);
+
+    const isModelPath = req.path.includes("/model");
+
+    let product;
+    if (isModelPath) {
+      product = await productService.getProductById(id);
+    } else {
+      product = await productService.getPublicProductById(id);
+    }
+
     return res.status(200).json(product);
   } catch (error) {
     next(error);
@@ -22,8 +31,17 @@ export const getAllProducts = async (req, res, next) => {
 export const getProductsByCategoryId = async (req, res, next) => {
   try {
     const { categoryId } = req.params;
-    const products = await productService.getProductsByCategoryId(categoryId);
-    return res.status(200).json(products);
+
+    const isModelPath = req.path.includes("/model");
+    const isPublic = !isModelPath;
+
+    const result = await productService.getProductsByCategoryIdPaginated(
+      categoryId,
+      req.query,
+      isPublic,
+    );
+
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -43,6 +61,15 @@ export const getProductsByProviderId = async (req, res, next) => {
     const { providerId } = req.params;
     const products = await productService.getProductsByProviderId(providerId);
     return res.status(200).json(products);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCatalogByCategories = async (req, res, next) => {
+  try {
+    const catalog = await productService.getCatalogByCategories();
+    return res.status(200).json(catalog);
   } catch (error) {
     next(error);
   }

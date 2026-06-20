@@ -1,9 +1,18 @@
 import { Op } from "sequelize";
-import { Product } from "../models/model.index.js";
+import { Product, Category } from "../models/model.index.js";
 
 export const productRepository = {
   findById(id, options = {}) {
-    return Product.findByPk(id, options);
+    return Product.findByPk(id, {
+      include: [
+        {
+          model: Category,
+          as: "category",
+          attributes: ["id", "name"],
+        },
+      ],
+      ...options,
+    });
   },
 
   findByName(name, options = {}) {
@@ -75,6 +84,21 @@ export const productRepository = {
       where: whereCondition,
       limit: parseInt(limit),
       offset: parseInt(offset),
+      ...options,
+    });
+  },
+
+  async findCatalogByCategories(options = {}) {
+    return await Category.findAll({
+      order: [["name", "ASC"]],
+      include: [
+        {
+          model: Product,
+          as: "products",
+          where: { price: { [Op.ne]: null } },
+          required: false,
+        },
+      ],
       ...options,
     });
   },
