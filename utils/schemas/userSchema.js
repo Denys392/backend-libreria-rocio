@@ -25,4 +25,7 @@ export const updateUserSchema = Joi.object({
   nombre: Joi.string().min(2).max(100).optional().allow(""),
   direccion: Joi.string().max(255).optional().allow(""),
   telefono: Joi.string().max(20).optional().allow(""),
+  imagen: Joi.any().optional().messages({
+    "any.base": "El formato de la imagen no es válido.",
+  }),
 });

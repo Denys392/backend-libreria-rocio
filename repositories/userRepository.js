@@ -9,7 +9,7 @@ export const userRepository = {
         {
           model: UserProfile,
           as: "profile",
-          attributes: ["nombre", "direccion", "telefono"],
+          attributes: ["nombre", "direccion", "telefono", "imagen"],
         },
       ],
       ...options,
@@ -24,7 +24,7 @@ export const userRepository = {
         {
           model: UserProfile,
           as: "profile",
-          attributes: ["nombre", "telefono"],
+          attributes: ["nombre", "telefono", "imagen"],
         },
       ],
       limit,

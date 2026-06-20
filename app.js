@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development' });
 
@@ -27,6 +28,9 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/uploads/products", express.static(path.join(process.cwd(), "public/uploads/products")));
+app.use("/uploads/categories", express.static(path.join(process.cwd(), "public/uploads/categories")));
 
 app.use('/', router);
 app.use(errorHandler);

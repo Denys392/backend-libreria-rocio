@@ -6,21 +6,27 @@ import Joi from "joi";
  * @param {string} property - La propiedad de la solicitud a validar (e.g., "body", "params", "query").
  */
 const validate = (schema, property) => (req, res, next) => {
-  const { error } = schema.validate(req[property], { abortEarly: false });
+  const { error, value } = schema.validate(req[property], {
+    abortEarly: false,
+    convert: true,
+  });
 
   if (error == null) {
+    req[property] = value;
     return next();
   }
 
   const { details } = error;
-  const detailedErrors = details.map(i => i.message);
+  const detailedErrors = details.map((i) => i.message);
   const message = detailedErrors.join(", ");
 
   console.error(`[Validation Error on ${property}]: ${message}`);
 
-  const validationError = new Error("Error de validación en los datos enviados.");
+  const validationError = new Error(
+    "Error de validación en los datos enviados.",
+  );
   validationError.status = 400;
-  validationError.errors = detailedErrors; 
+  validationError.errors = detailedErrors;
 
   next(validationError);
 };
