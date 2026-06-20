@@ -102,4 +102,25 @@ export const productRepository = {
       ...options,
     });
   },
+
+  async incrementStock(id, quantity, transaction = null) {
+    const product = await Product.findByPk(id);
+    if (!product) throw new Error("Producto no encontrado");
+    return await product.increment("stock", { by: quantity, transaction });
+  },
+
+  async decrementStock(id, quantity, transaction = null) {
+    const product = await Product.findByPk(id);
+    if (!product) throw new Error("Producto no encontrado");
+
+    if (product.stock < quantity) {
+      const err = new Error(
+        `Stock insuficiente para el producto: ${product.name}`,
+      );
+      err.status = 400;
+      throw err;
+    }
+
+    return await product.decrement("stock", { by: quantity, transaction });
+  },
 };

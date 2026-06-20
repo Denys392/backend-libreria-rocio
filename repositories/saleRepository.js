@@ -1,4 +1,11 @@
-import { Sale, SaleDetail, Product, User, UserProfile } from "../models/model.index.js";
+import {
+  Sale,
+  SaleDetail,
+  Product,
+  User,
+  UserProfile,
+} from "../models/model.index.js";
+import { productRepository } from "./productRepository.js";
 import sequelize from "../models/sequelize.js";
 
 export const saleRepository = {
@@ -19,17 +26,11 @@ export const saleRepository = {
           { transaction },
         );
 
-        const product = await Product.findByPk(item.product_id, {
+        await productRepository.decrementStock(
+          item.product_id,
+          parseInt(item.quantity),
           transaction,
-        });
-        if (product) {
-          await product.update(
-            {
-              stock: product.stock - parseInt(item.quantity),
-            },
-            { transaction },
-          );
-        }
+        );
       }
 
       await transaction.commit();

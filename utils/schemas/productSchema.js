@@ -17,11 +17,6 @@ export const createProductSchema = Joi.object({
     "number.base": "El precio debe ser un valor numérico.",
     "number.min": "El precio no puede ser un número negativo.",
   }),
-  stock: Joi.number().integer().min(0).optional().default(0).messages({
-    "number.base": "El stock debe ser un valor numérico.",
-    "number.integer": "El stock debe ser un número entero.",
-    "number.min": "El stock no puede ser un valor negativo.",
-  }),
   image: Joi.string().max(255).allow("", null).optional().messages({
     "string.base": "La ruta de la imagen debe ser una cadena de texto.",
     "string.max": "La ruta de la imagen no debe exceder los 255 caracteres.",
@@ -59,11 +54,6 @@ export const updateProductSchema = Joi.object({
   price: Joi.number().min(0).precision(2).allow(null).optional().messages({
     "number.base": "El precio debe ser un valor numérico.",
     "number.min": "El precio no puede ser un número negativo.",
-  }),
-  stock: Joi.number().integer().min(0).optional().messages({
-    "number.base": "El stock debe ser un valor numérico.",
-    "number.integer": "El stock debe ser un número entero.",
-    "number.min": "El stock no puede ser un valor negativo.",
   }),
   image: Joi.string().max(255).allow("", null).optional().messages({
     "string.base": "La ruta de la imagen debe ser una cadena de texto.",

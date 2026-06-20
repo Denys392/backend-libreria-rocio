@@ -12,7 +12,15 @@ const validate = (schema, property) => (req, res, next) => {
   });
 
   if (error == null) {
-    req[property] = value;
+    if (property === "query" || property === "params") {
+      for (const key in req[property]) {
+        delete req[property][key];
+      }
+      Object.assign(req[property], value);
+    } else {
+      req[property] = value;
+    }
+
     return next();
   }
 

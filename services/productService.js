@@ -1,6 +1,8 @@
 import { productRepository } from "../repositories/productRepository.js";
 import { Product } from "../models/model.index.js";
 import { Op } from "sequelize";
+import path from "path";
+import fs from "fs";
 
 export const productService = {
   async getProductById(id) {
@@ -17,8 +19,10 @@ export const productService = {
     const product = await this.getProductById(id);
 
     if (product.price === null) {
-      const err = new Error("El producto solicitado no está disponible para la venta.");
-      err.status = 404; 
+      const err = new Error(
+        "El producto solicitado no está disponible para la venta.",
+      );
+      err.status = 404;
       throw err;
     }
     return product;
@@ -86,7 +90,7 @@ export const productService = {
     );
   },
 
-  async createProduct(productData) {
+  async createProduct(productData, uploadedFile) {
     if (!productData.name || productData.name.trim() === "") {
       const err = new Error("Product name is required");
       err.status = 400;
@@ -94,13 +98,21 @@ export const productService = {
     }
 
     const normalizedName = productData.name.trim();
-
     const existingProduct = await productRepository.findByName(normalizedName);
     if (existingProduct) {
+      if (uploadedFile) {
+        fs.unlink(uploadedFile.path, () => {});
+      }
       const err = new Error("A product with this name already exists");
       err.status = 409;
       throw err;
     }
+
+    const imageName = uploadedFile
+      ? uploadedFile.filename
+      : productData.image
+        ? productData.image.trim()
+        : null;
 
     return await productRepository.createProduct({
       name: normalizedName,
@@ -109,8 +121,8 @@ export const productService = {
         : null,
       price:
         productData.price !== undefined ? parseFloat(productData.price) : null,
-      stock: productData.stock !== undefined ? parseInt(productData.stock) : 0,
-      image: productData.image ? productData.image.trim() : null, // <--- NUEVA ASIGNACIÓN
+      stock: 0,
+      image: imageName,
       category_id: productData.category_id
         ? parseInt(productData.category_id)
         : null,
@@ -120,13 +132,13 @@ export const productService = {
     });
   },
 
-  async updateProduct(id, productData) {
-    await this.getProductById(id);
-
+  async updateProduct(id, productData, uploadedFile) {
+    const currentProduct = await this.getProductById(id);
     const updateData = {};
 
     if (productData.name !== undefined) {
       if (!productData.name || productData.name.trim() === "") {
+        if (uploadedFile) fs.unlink(uploadedFile.path, () => {});
         const err = new Error("Product name cannot be empty");
         err.status = 400;
         throw err;
@@ -136,6 +148,7 @@ export const productService = {
         await productRepository.findByName(normalizedName);
 
       if (existingProduct && existingProduct.id !== parseInt(id)) {
+        if (uploadedFile) fs.unlink(uploadedFile.path, () => {});
         const err = new Error("A product with this name already exists");
         err.status = 409;
         throw err;
@@ -143,39 +156,60 @@ export const productService = {
       updateData.name = normalizedName;
     }
 
-    if (productData.description !== undefined) {
+    if (productData.description !== undefined)
       updateData.description = productData.description
         ? productData.description.trim()
         : null;
-    }
-    if (productData.price !== undefined) {
-      updateData.price = parseFloat(productData.price);
-    }
-    if (productData.stock !== undefined) {
-      updateData.stock = parseInt(productData.stock);
-    }
-    if (productData.image !== undefined) {
+    if (productData.price !== undefined)
+      updateData.price =
+        productData.price === null ? null : parseFloat(productData.price);
+
+    const oldImage = currentProduct.image;
+    if (uploadedFile) {
+      updateData.image = uploadedFile.filename;
+    } else if (productData.image !== undefined) {
       updateData.image = productData.image ? productData.image.trim() : null;
-    }
-    if (productData.category_id !== undefined) {
-      updateData.category_id = productData.category_id
-        ? parseInt(productData.category_id)
-        : null;
-    }
-    if (productData.provider_id !== undefined) {
-      updateData.provider_id = productData.provider_id
-        ? parseInt(productData.provider_id)
-        : null;
     }
 
     await productRepository.updateProduct(id, updateData);
+
+    if (uploadedFile && oldImage) {
+      const absoluteOldPath = path.join(
+        process.cwd(),
+        "public/uploads/products",
+        oldImage,
+      );
+      if (fs.existsSync(absoluteOldPath)) {
+        fs.promises
+          .unlink(absoluteOldPath)
+          .catch((err) =>
+            console.error(
+              "Error eliminando imagen vieja de producto:",
+              err.message,
+            ),
+          );
+      }
+    }
 
     return await this.getProductById(id);
   },
 
   async deleteProduct(id) {
-    await this.getProductById(id);
-    return await productRepository.deleteProduct(id);
+    const product = await this.getProductById(id);
+    const productImage = product.image;
+
+    await productRepository.deleteProduct(id);
+
+    if (productImage) {
+      const absoluteOldPath = path.join(
+        process.cwd(),
+        "public/uploads/products",
+        productImage,
+      );
+      if (fs.existsSync(absoluteOldPath)) {
+        fs.promises.unlink(absoluteOldPath).catch(() => {});
+      }
+    }
   },
 
   async getCatalogByCategories() {
@@ -237,4 +271,5 @@ export const productService = {
       products: rows,
     };
   },
+
 };
