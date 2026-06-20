@@ -6,6 +6,7 @@ import providerRoutes from './providerRoute.js';
 import productRoutes from './productRoute.js';
 import supplyRoutes from './supplyRoutes.js';
 import saleRoutes from './saleRoutes.js';
+import reportRoutes from './reportRoutes.js';
 // import bookRoutes from './book.js';
 // import roleRoutes from './role.js';
 
@@ -18,5 +19,6 @@ router.use('/providers', providerRoutes);
 router.use('/products', productRoutes);
 router.use('/supplies', supplyRoutes);
 router.use('/sales', saleRoutes);
+router.use('/reports', reportRoutes);
 
 export default router;
