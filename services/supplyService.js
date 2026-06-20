@@ -1,9 +1,21 @@
+import { authRepository } from "../repositories/authRepository.js";
 import { supplyRepository } from "../repositories/supplyRepository.js";
 import { productRepository } from "../repositories/productRepository.js";
 
 export const supplyService = {
   async registerPurchase(purchaseData) {
     const { provider_id, user_id, items } = purchaseData;
+
+    if (user_id) {
+      const userExists = await authRepository.findUserById(user_id);
+      if (!userExists) {
+        const err = new Error(
+          `Operación inválida: El usuario administrativo con ID ${user_id} no existe en el sistema.`,
+        );
+        err.status = 401;
+        throw err;
+      }
+    }
 
     if (!provider_id || isNaN(parseInt(provider_id))) {
       const err = new Error("A valid provider_id is required");
