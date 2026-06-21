@@ -1,0 +1,307 @@
+import { Router } from "express";
+import { authenticateJWT } from "../middleware/authMiddleware.js";
+import { permitRoles } from "../middleware/roleMiddleware.js";
+import { ROLES } from "../utils/roles.js";
+import validate from "../middleware/validateMiddleware.js";
+import {
+  createSale,
+  getAllSales,
+  getMyPurchases,
+  getSaleById,
+} from "../controllers/saleController.js";
+import {
+  createSaleSchema,
+  saleQuerySchema,
+  saleIdSchema,
+} from "../utils/schemas/saleSchema.js";
+
+const router = Router();
+
+/**
+ * @openapi
+ * /sales:
+ *   post:
+ *     summary: Registrar una venta
+ *     description: Procesa una nueva venta, descuenta el stock de los productos vendidos y calcula el total. Si el usuario está autenticado, se usa su ID automáticamente; en caso contrario debe enviarse `user_id` en el body. Accesible para roles CLIENT, ADMIN, DEV o SELLER.
+ *     tags:
+ *       - Ventas
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - document_type
+ *               - items
+ *             properties:
+ *               user_id:
+ *                 type: integer
+ *                 nullable: true
+ *                 description: ID del usuario comprador. Se ignora si la petición está autenticada (se usa el ID del token).
+ *                 example: 3
+ *               document_type:
+ *                 type: string
+ *                 enum: [BOLETA, FACTURA, TICKET, BOLETA_WEB, FACTURA_WEB]
+ *                 example: BOLETA
+ *               items:
+ *                 type: array
+ *                 minItems: 1
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - product_id
+ *                     - quantity
+ *                   properties:
+ *                     product_id:
+ *                       type: integer
+ *                       example: 10
+ *                     quantity:
+ *                       type: integer
+ *                       minimum: 1
+ *                       example: 2
+ *     responses:
+ *       201:
+ *         description: Venta procesada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venta procesada exitosamente
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 15
+ *                     user_id:
+ *                       type: integer
+ *                       example: 3
+ *                     document_type:
+ *                       type: string
+ *                       example: BOLETA
+ *                     total:
+ *                       type: number
+ *                       format: float
+ *                       example: 19.80
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Datos de entrada inválidos, ID de usuario faltante o stock insuficiente.
+ *       401:
+ *         description: Token faltante, expirado o manipulado.
+ *       403:
+ *         description: Permisos insuficientes para esta acción.
+ *       404:
+ *         description: Alguno de los productos especificados no existe.
+ */
+router.post(
+  "/",
+  authenticateJWT,
+  permitRoles(ROLES.CLIENT, ROLES.ADMIN, ROLES.DEV, ROLES.SELLER),
+  validate(createSaleSchema, "body"),
+  createSale,
+);
+
+/**
+ * @openapi
+ * /sales:
+ *   get:
+ *     summary: Listar todas las ventas (administración)
+ *     description: Devuelve un listado paginado de todas las ventas registradas en el sistema. Solo accesible para roles OWNER, ADMIN, DEV o SELLER.
+ *     tags:
+ *       - Ventas
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *           maximum: 100
+ *     responses:
+ *       200:
+ *         description: Listado de ventas obtenido exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total_items:
+ *                   type: integer
+ *                 total_pages:
+ *                   type: integer
+ *                 current_page:
+ *                   type: integer
+ *                 limit:
+ *                   type: integer
+ *                 sales:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 15
+ *                       document_type:
+ *                         type: string
+ *                         example: BOLETA
+ *                       total:
+ *                         type: number
+ *                         format: float
+ *                         example: 19.80
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         description: Token faltante, expirado o manipulado.
+ *       403:
+ *         description: Permisos insuficientes para esta acción.
+ */
+router.get(
+  "/",
+  authenticateJWT,
+  permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV, ROLES.SELLER),
+  validate(saleQuerySchema, "query"),
+  getAllSales,
+);
+
+/**
+ * @openapi
+ * /sales/my-purchases:
+ *   get:
+ *     summary: Listar mis compras
+ *     description: Devuelve un listado paginado de las compras realizadas por el usuario autenticado. Accesible para roles CLIENT o ADMIN.
+ *     tags:
+ *       - Ventas
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *           maximum: 100
+ *     responses:
+ *       200:
+ *         description: Listado de compras obtenido exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total_items:
+ *                   type: integer
+ *                 total_pages:
+ *                   type: integer
+ *                 current_page:
+ *                   type: integer
+ *                 limit:
+ *                   type: integer
+ *                 sales:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       401:
+ *         description: Token faltante, expirado o manipulado.
+ *       403:
+ *         description: Permisos insuficientes para esta acción.
+ */
+router.get(
+  "/my-purchases",
+  authenticateJWT,
+  permitRoles(ROLES.CLIENT, ROLES.ADMIN),
+  validate(saleQuerySchema, "query"),
+  getMyPurchases,
+);
+
+/**
+ * @openapi
+ * /sales/{id}:
+ *   get:
+ *     summary: Obtener el detalle de una venta
+ *     description: Devuelve el detalle completo de una venta, incluyendo sus productos. El personal (OWNER, ADMIN, DEV, SELLER) puede consultar cualquier venta; un CLIENT solo puede consultar sus propias ventas.
+ *     tags:
+ *       - Ventas
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID numérico de la venta.
+ *     responses:
+ *       200:
+ *         description: Detalle de la venta obtenido exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 15
+ *                 user_id:
+ *                   type: integer
+ *                   example: 3
+ *                 document_type:
+ *                   type: string
+ *                   example: BOLETA
+ *                 total:
+ *                   type: number
+ *                   format: float
+ *                   example: 19.80
+ *                 created_at:
+ *                   type: string
+ *                   format: date-time
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       product_id:
+ *                         type: integer
+ *                         example: 10
+ *                       quantity:
+ *                         type: integer
+ *                         example: 2
+ *                       price_per_unit:
+ *                         type: number
+ *                         format: float
+ *                         example: 9.90
+ *       401:
+ *         description: Token faltante, expirado o manipulado.
+ *       403:
+ *         description: Acceso denegado. No tienes autorización para visualizar los detalles de esta transacción.
+ *       404:
+ *         description: La venta solicitada no existe.
+ */
+router.get(
+  "/:id",
+  authenticateJWT,
+  permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV, ROLES.SELLER, ROLES.CLIENT),
+  validate(saleIdSchema, "params"),
+  getSaleById,
+);
+
+export default router;

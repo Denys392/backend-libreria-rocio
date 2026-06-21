@@ -1,24 +1,22 @@
 import { Router } from 'express';
-import authRoutes from './auth.js';
-import userRoutes from './userRoute.js';
-import categoryRoutes from './categoryRoute.js';
-import providerRoutes from './providerRoute.js';
-import productRoutes from './productRoute.js';
-import supplyRoutes from './supplyRoutes.js';
-import saleRoutes from './saleRoutes.js';
-import reportRoutes from './reportRoutes.js';
-// import bookRoutes from './book.js';
-// import roleRoutes from './role.js';
+import authRouter from './authRouter.js';
+import userRoutes from './userRouter.js';
+import categoryRouter from './categoryRouter.js';
+import providerRouter from './providerRouter.js';
+import productRouter from './productRouter.js';
+import supplyRouter from './supplyRouter.js';
+import saleRouter from './saleRouter.js';
+import reportRouter from './reportRouter.js';
 
 const router = Router();
 
-router.use('/auth', authRoutes);
+router.use('/auth', authRouter);
 router.use('/users', userRoutes);
-router.use('/categories', categoryRoutes);
-router.use('/providers', providerRoutes);
-router.use('/products', productRoutes);
-router.use('/supplies', supplyRoutes);
-router.use('/sales', saleRoutes);
-router.use('/reports', reportRoutes);
+router.use('/categories', categoryRouter);
+router.use('/providers', providerRouter);
+router.use('/products', productRouter);
+router.use('/supplies', supplyRouter);
+router.use('/sales', saleRouter);
+router.use('/reports', reportRouter);
 
 export default router;

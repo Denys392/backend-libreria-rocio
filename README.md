@@ -96,26 +96,75 @@ npm run dev
 
 La API se ejecutará en `http://localhost:3000` (o el puerto configurado en `app.js`).
 
+## Documentación interactiva (Swagger)
+
+La API cuenta con documentación interactiva generada con Swagger/OpenAPI. Con el servidor en ejecución, puedes explorar y probar todos los endpoints desde:
+
+*   **Local:** `http://localhost:3000/api-docs`
+*   **Producción:** `https://libreriarocio.api.denyschafloque.space/api-docs`
+
 ## Puntos de Acceso (API Endpoints)
 
-### Autenticación
-*   `POST /api/auth/register`: Registra un nuevo usuario.
-*   `POST /api/auth/login`: Autentica al usuario y obtiene JWT y Token de Refresco.
-*   `POST /api/auth/refresh-token`: Obtiene un nuevo token de acceso usando un token de refresco.
-*   `POST /api/auth/logout`: Invalida el token de refresco.
+> Nota: ninguna ruta usa el prefijo `/api`; se montan directamente sobre la raíz (por ejemplo `/auth/login`, `/products`, etc.). Consulta `/api-docs` para ver el detalle completo de cada endpoint (parámetros, body, respuestas y roles requeridos).
 
-### Usuarios (Requiere Autenticación y Autorización)
-*   `GET /api/users`: Obtiene todos los usuarios.
-*   `GET /api/users/:id`: Obtiene usuario por ID.
-*   `PUT /api/users/:id`: Actualiza usuario por ID.
-*   `DELETE /api/users/:id`: Elimina usuario por ID.
+### Autenticación (`/auth`)
+*   `POST /auth/register`: Registro público de clientes (rol CLIENT automático).
+*   `POST /auth/login`: Inicia sesión y devuelve un Access Token (el Refresh Token se entrega como cookie HTTP-Only).
+*   `POST /auth/refresh`: Renueva el Access Token usando la cookie de refresco.
+*   `POST /auth/logout`: Cierra sesión e invalida el Refresh Token.
+*   `POST /auth/register/user`: Crea usuarios con un rol específico (solo OWNER, ADMIN o DEV).
 
-### Productos (Requiere Autenticación y Autorización)
-*   `GET /api/products`: Obtiene todos los productos.
-*   `POST /api/products`: Crea un nuevo producto.
-*   `GET /api/products/:id`: Obtiene producto por ID.
-*   `PUT /api/products/:id`: Actualiza producto por ID.
-*   `DELETE /api/products/:id`: Elimina producto por ID.
+### Usuarios (`/users`)
+*   `GET /users/profile`: Obtiene el perfil del usuario autenticado.
+*   `GET /users/profile/image/:filename`: Sirve la imagen de perfil pública.
+*   `GET /users/management`: Lista todos los usuarios, paginado (solo OWNER, ADMIN, DEV).
+*   `PUT /users/:id`: Actualiza un usuario (reglas distintas si te editas a ti mismo o eres staff).
+*   `DELETE /users/:id`: Elimina un usuario (solo OWNER, ADMIN, DEV).
+
+### Categorías (`/categories`)
+*   `GET /categories`: Lista todas las categorías (público).
+*   `GET /categories/:id`: Obtiene una categoría por ID (público).
+*   `POST /categories`: Crea una categoría (solo OWNER, ADMIN, DEV).
+*   `PUT /categories/:id`: Actualiza una categoría (solo OWNER, ADMIN, DEV).
+*   `DELETE /categories/:id`: Elimina una categoría (solo OWNER, ADMIN, DEV).
+
+### Proveedores (`/providers`, solo OWNER, ADMIN, DEV)
+*   `GET /providers`: Lista todos los proveedores.
+*   `GET /providers/:id`: Obtiene un proveedor por ID.
+*   `GET /providers/document/:identifier`: Busca un proveedor por RUC o DNI.
+*   `POST /providers`: Crea un proveedor.
+*   `PUT /providers/:id`: Actualiza un proveedor.
+*   `DELETE /providers/:id`: Elimina un proveedor.
+
+### Productos (`/products`)
+*   `GET /products`: Catálogo público de productos, paginado.
+*   `GET /products/catalog-by-categories`: Catálogo agrupado por categoría (público).
+*   `GET /products/:id`: Obtiene un producto publicado por ID (público).
+*   `GET /products/model`: Lista todos los productos, incluidos los no publicados (solo OWNER, ADMIN, DEV).
+*   `GET /products/category/:categoryId`: Productos públicos de una categoría.
+*   `GET /products/model/category/:categoryId`: Todos los productos de una categoría (solo OWNER, ADMIN, DEV).
+*   `GET /products/provider/:providerId`: Productos de un proveedor (solo OWNER, ADMIN, DEV).
+*   `GET /products/model/:id`: Obtiene cualquier producto por ID (solo OWNER, ADMIN, DEV).
+*   `POST /products`: Crea un producto (solo OWNER, ADMIN, DEV).
+*   `PUT /products/:id`: Actualiza un producto (solo OWNER, ADMIN, DEV).
+*   `DELETE /products/:id`: Elimina un producto (solo OWNER, ADMIN, DEV).
+
+### Suministros (`/supplies`, solo OWNER, ADMIN, DEV)
+*   `POST /supplies`: Registra una orden de abastecimiento y actualiza el stock.
+*   `GET /supplies`: Lista todas las órdenes de suministro.
+
+### Ventas (`/sales`)
+*   `POST /sales`: Registra una venta (CLIENT, ADMIN, DEV, SELLER).
+*   `GET /sales`: Lista todas las ventas, paginado (OWNER, ADMIN, DEV, SELLER).
+*   `GET /sales/my-purchases`: Lista las compras del usuario autenticado (CLIENT, ADMIN).
+*   `GET /sales/:id`: Detalle de una venta (staff o el propio comprador).
+
+### Reportes (`/reports`)
+*   `GET /reports/dashboard`: Resumen financiero, top de productos y tendencia de ventas (OWNER, ADMIN, DEV, MANAGER).
+*   `GET /reports/low-stock`: Productos con stock bajo (OWNER, ADMIN, DEV, MANAGER).
+*   `GET /reports/sales-by-document`: Ventas agrupadas por tipo de comprobante (OWNER, ADMIN, DEV).
+*   `GET /reports/top-customers`: Clientes con mayor gasto acumulado (OWNER, ADMIN, DEV).
+*   `GET /reports/category-performance`: Rendimiento de ventas por categoría (OWNER, ADMIN, DEV).
 
 ## Licencia
 
