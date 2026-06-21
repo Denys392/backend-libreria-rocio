@@ -12,10 +12,12 @@ import { ROLES } from "../utils/roles.js";
 import validate from "../middleware/validateMiddleware.js";
 import { registerSchema, loginSchema } from "../utils/schemas/authSchema.js";
 
+import { authLimiter } from "../middleware/rateLimiter.js";
+
 const router = Router();
 
-router.post("/register", validate(registerSchema, "body"), register);
-router.post("/login", validate(loginSchema, "body"), login);
+router.post("/register", authLimiter, validate(registerSchema, "body"), register);
+router.post("/login", authLimiter, validate(loginSchema, "body"), login);
 router.post("/refresh", refresh);
 router.post("/logout", logout);
 router.post(
