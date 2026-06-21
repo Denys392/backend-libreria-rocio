@@ -17,7 +17,7 @@ export const register = async (req, res, next) => {
   try {
     const result = await authService.register(req.body, null);
     return res.status(201).json({
-      message: "User registered successfully",
+      message: "Usuario registrado exitosamente.",
       userId: result.userId,
       role: result.role,
     });
@@ -31,7 +31,7 @@ export const registerByStaff = async (req, res, next) => {
     const actorRole = req.user?.role;
     const result = await authService.register(req.body, actorRole);
     return res.status(201).json({
-      message: "User created successfully",
+      message: "Usuario creado exitosamente.",
       userId: result.userId,
       role: result.role,
     });
@@ -72,11 +72,12 @@ export const logout = async (req, res, next) => {
     res.clearCookie("refreshToken", clearCookieOptions);
 
     if (deleted > 0) {
-      return res.status(200).json({ message: "Logged out successfully" });
+      return res.status(200).json({ message: "Sesión cerrada exitosamente." });
     }
 
     return res.status(200).json({
-      message: "Refresh token already removed or not found, but logout completed",
+      message:
+        "El token de refresco ya no existía o no fue encontrado, pero el cierre de sesión se completó.",
     });
   } catch (err) {
     return next(err);

@@ -70,7 +70,7 @@ export const productService = {
 
   async getProductsByCategoryId(categoryId) {
     if (!categoryId || isNaN(parseInt(categoryId))) {
-      const err = new Error("Invalid category ID filter");
+      const err = new Error("El ID de la categoría de filtro no es válido.");
       err.status = 400;
       throw err;
     }
@@ -81,7 +81,7 @@ export const productService = {
 
   async getProductsByProviderId(providerId) {
     if (!providerId || isNaN(parseInt(providerId))) {
-      const err = new Error("Invalid provider ID filter");
+      const err = new Error("El ID del proveedor de filtro no es válido.");
       err.status = 400;
       throw err;
     }
@@ -92,7 +92,7 @@ export const productService = {
 
   async createProduct(productData, uploadedFile) {
     if (!productData.name || productData.name.trim() === "") {
-      const err = new Error("Product name is required");
+      const err = new Error("El nombre del producto es obligatorio.");
       err.status = 400;
       throw err;
     }
@@ -103,7 +103,7 @@ export const productService = {
       if (uploadedFile) {
         fs.unlink(uploadedFile.path, () => {});
       }
-      const err = new Error("A product with this name already exists");
+      const err = new Error("Ya existe un producto con este nombre.");
       err.status = 409;
       throw err;
     }
@@ -139,7 +139,7 @@ export const productService = {
     if (productData.name !== undefined) {
       if (!productData.name || productData.name.trim() === "") {
         if (uploadedFile) fs.unlink(uploadedFile.path, () => {});
-        const err = new Error("Product name cannot be empty");
+        const err = new Error("El nombre del producto no puede estar vacío.");
         err.status = 400;
         throw err;
       }
@@ -149,7 +149,7 @@ export const productService = {
 
       if (existingProduct && existingProduct.id !== parseInt(id)) {
         if (uploadedFile) fs.unlink(uploadedFile.path, () => {});
-        const err = new Error("A product with this name already exists");
+        const err = new Error("Ya existe un producto con este nombre.");
         err.status = 409;
         throw err;
       }
@@ -271,5 +271,4 @@ export const productService = {
       products: rows,
     };
   },
-
 };

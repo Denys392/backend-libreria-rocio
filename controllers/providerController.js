@@ -4,7 +4,7 @@ export const createProvider = async (req, res, next) => {
   try {
     const provider = await providerService.createProvider(req.body);
     return res.status(201).json({
-      message: "Provider created successfully",
+      message: "Proveedor creado exitosamente.",
       data: provider,
     });
   } catch (error) {
@@ -16,7 +16,7 @@ export const getProviderByDocument = async (req, res, next) => {
   try {
     const { identifier } = req.params;
     if (!identifier) {
-      const err = new Error("RUC or DNI identifier is required");
+      const err = new Error("El identificador RUC o DNI es obligatorio.");
       err.status = 400;
       throw err;
     }
@@ -51,7 +51,7 @@ export const updateProvider = async (req, res, next) => {
     const { id } = req.params;
     const updatedProvider = await providerService.updateProvider(id, req.body);
     return res.status(200).json({
-      message: "Provider updated successfully",
+      message: "Proveedor actualizado exitosamente.",
       data: updatedProvider,
     });
   } catch (error) {
@@ -64,7 +64,7 @@ export const deleteProvider = async (req, res, next) => {
     const { id } = req.params;
     await providerService.deleteProvider(id);
     return res.status(200).json({
-      message: "Provider deleted successfully",
+      message: "Proveedor eliminado exitosamente.",
     });
   } catch (error) {
     next(error);
