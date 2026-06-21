@@ -10,6 +10,9 @@ export const createCategorySchema = Joi.object({
   description: Joi.string().max(255).allow("").optional().messages({
     "string.base": "La descripción debe ser una cadena de texto.",
     "string.max": "La descripción no debe exceder los {#limit} caracteres."
+  }),
+  image: Joi.string().max(255).allow("", null).optional().messages({
+    "string.base": "La ruta de la imagen debe ser una cadena de texto.",
   })
 });
 
@@ -22,6 +25,9 @@ export const updateCategorySchema = Joi.object({
   description: Joi.string().max(255).allow("").optional().messages({
     "string.base": "La descripción debe ser una cadena de texto.",
     "string.max": "La descripción no debe exceder los {#limit} caracteres."
+  }),
+  image: Joi.string().max(255).allow("", null).optional().messages({
+    "string.base": "La ruta de la imagen debe ser una cadena de texto.",
   })
 });
 

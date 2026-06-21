@@ -18,6 +18,11 @@ Category.init(
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
+    },
+    image: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      defaultValue: null,
     }
   },
   {
