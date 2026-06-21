@@ -4,3 +4,24 @@
 ca.pem
 node_modules
 .clineignore
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Carpetas de configuración de tu editor (VS Code)
+.vscode/
+*.code-workspace
+
+# Archivos de logs y depuración
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Carpetas de compilación o empaquetado (Si usas TypeScript o compilas el código)
+dist/
+build/
+.cache/
