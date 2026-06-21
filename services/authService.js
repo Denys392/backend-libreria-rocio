@@ -44,7 +44,9 @@ export const authService = {
     const t = await sequelize.transaction();
     try {
       if (!email || !password) {
-        const err = new Error("Email and password required");
+        const err = new Error(
+          "Correo electrónico y contraseña son obligatorios",
+        );
         err.status = 400;
         throw err;
       }
@@ -58,7 +60,7 @@ export const authService = {
         transaction: t,
       });
       if (!roleRecord) {
-        const err = new Error("Role not found in database");
+        const err = new Error("Rol no encontrado en la base de datos");
         err.status = 400;
         throw err;
       }
@@ -67,7 +69,7 @@ export const authService = {
         transaction: t,
       });
       if (exists) {
-        const err = new Error("Email already exists");
+        const err = new Error("El correo electrónico ya está en uso");
         err.status = 409;
         throw err;
       }
@@ -94,7 +96,7 @@ export const authService = {
 
   async login({ email, password }) {
     if (!email || !password) {
-      const err = new Error("Email and password required");
+      const err = new Error("Correo electrónico y contraseña son obligatorios");
       err.status = 400;
       throw err;
     }
@@ -104,14 +106,14 @@ export const authService = {
     });
 
     if (!user) {
-      const err = new Error("Invalid credentials");
+      const err = new Error("Credenciales inválidas");
       err.status = 401;
       throw err;
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
-      const err = new Error("Invalid credentials");
+      const err = new Error("Credenciales inválidas");
       err.status = 401;
       throw err;
     }
@@ -137,14 +139,14 @@ export const authService = {
 
   async refresh(refreshToken) {
     if (!refreshToken) {
-      const err = new Error("Unauthorized");
+      const err = new Error("No se proporcionó un token de actualización.");
       err.status = 401;
       throw err;
     }
 
     const found = await authRepository.findRefreshToken(refreshToken);
     if (!found || new Date(found.expires_at) < new Date()) {
-      const err = new Error("Unauthorized");
+      const err = new Error("Token de actualización inválido o expirado.");
       err.status = 401;
       throw err;
     }
@@ -153,7 +155,7 @@ export const authService = {
     try {
       payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     } catch {
-      const err = new Error("Unauthorized");
+      const err = new Error("Token de actualización inválido.");
       err.status = 401;
       throw err;
     }
@@ -163,7 +165,7 @@ export const authService = {
     });
 
     if (!user || user.active === false) {
-      const err = new Error("Unauthorized");
+      const err = new Error("No autorizado");
       err.status = 401;
       throw err;
     }

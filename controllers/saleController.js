@@ -61,7 +61,7 @@ export const getSaleById = async (req, res, next) => {
 
     if (!isStaff && !isOwnerOfSale) {
       const err = new Error(
-        "Acceso denegado: No tienes autorización para visualizar los detalles de esta transacción.",
+        "No tienes autorización para visualizar los detalles de esta transacción.",
       );
       err.status = 403;
       throw err;

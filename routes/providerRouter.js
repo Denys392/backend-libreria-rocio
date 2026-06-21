@@ -3,7 +3,13 @@ import { authenticateJWT } from "../middleware/authMiddleware.js";
 import { permitRoles } from "../middleware/roleMiddleware.js";
 import { ROLES } from "../utils/roles.js";
 import validate from "../middleware/validateMiddleware.js";
-import { createProviderSchema, updateProviderSchema, providerIdSchema, providerDocumentSchema } from "../utils/schemas/providerSchema.js";
+
+import {
+  createProviderSchema,
+  updateProviderSchema,
+  providerIdSchema,
+  providerDocumentSchema,
+} from "../utils/schemas/providerSchema.js";
 
 import {
   createProvider,
@@ -16,48 +22,7 @@ import {
 
 const router = Router();
 
-//providers
-
-/**
- * @openapi
- * /providers:
- *   get:
- *     summary: Listar todos los proveedores
- *     description: Devuelve el listado completo de proveedores registrados. Solo accesible para roles OWNER, ADMIN o DEV.
- *     tags:
- *       - Proveedores
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Listado de proveedores obtenido exitosamente.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   company_name:
- *                     type: string
- *                     example: Distribuidora Andina S.A.C.
- *                   ruc_or_dni:
- *                     type: string
- *                     example: "20123456789"
- *                   phone:
- *                     type: string
- *                     example: "987654321"
- *                   email:
- *                     type: string
- *                     example: contacto@distandina.com
- *       401:
- *         description: Token faltante, expirado o manipulado.
- *       403:
- *         description: Permisos insuficientes para esta acción.
- */
+// GET /providers
 router.get(
   "/",
   authenticateJWT,
@@ -65,104 +30,7 @@ router.get(
   getAllProviders,
 );
 
-/**
- * @openapi
- * /providers/{id}:
- *   get:
- *     summary: Obtener un proveedor por ID
- *     description: Devuelve los datos de un proveedor específico. Solo accesible para roles OWNER, ADMIN o DEV.
- *     tags:
- *       - Proveedores
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID numérico del proveedor.
- *     responses:
- *       200:
- *         description: Proveedor encontrado exitosamente.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                   example: 1
- *                 company_name:
- *                   type: string
- *                   example: Distribuidora Andina S.A.C.
- *                 ruc_or_dni:
- *                   type: string
- *                   example: "20123456789"
- *                 phone:
- *                   type: string
- *                   example: "987654321"
- *                 email:
- *                   type: string
- *                   example: contacto@distandina.com
- *       401:
- *         description: Token faltante, expirado o manipulado.
- *       403:
- *         description: Permisos insuficientes para esta acción.
- *       404:
- *         description: El proveedor solicitado no existe.
- */
-router.get(
-  "/:id",
-  authenticateJWT,
-  permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
-  validate(providerIdSchema, "params"),
-  getProviderByID,
-);
-
-/**
- * @openapi
- * /providers/document/{identifier}:
- *   get:
- *     summary: Buscar un proveedor por RUC o DNI
- *     description: Devuelve los datos de un proveedor a partir de su número de documento (RUC o DNI). Solo accesible para roles OWNER, ADMIN o DEV.
- *     tags:
- *       - Proveedores
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: identifier
- *         required: true
- *         schema:
- *           type: string
- *         description: Número de RUC o DNI del proveedor a buscar.
- *     responses:
- *       200:
- *         description: Proveedor encontrado exitosamente.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                   example: 1
- *                 company_name:
- *                   type: string
- *                   example: Distribuidora Andina S.A.C.
- *                 ruc_or_dni:
- *                   type: string
- *                   example: "20123456789"
- *       400:
- *         description: El identificador RUC o DNI es obligatorio.
- *       401:
- *         description: Token faltante, expirado o manipulado.
- *       403:
- *         description: Permisos insuficientes para esta acción.
- *       404:
- *         description: No se encontró ningún proveedor con ese documento.
- */
+// GET /providers/document/:identifier
 router.get(
   "/document/:identifier",
   authenticateJWT,
@@ -171,66 +39,16 @@ router.get(
   getProviderByDocument,
 );
 
-/**
- * @openapi
- * /providers:
- *   post:
- *     summary: Crear un nuevo proveedor
- *     description: Registra un nuevo proveedor en el sistema. Solo accesible para roles OWNER, ADMIN o DEV.
- *     tags:
- *       - Proveedores
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - ruc_or_dni
- *             properties:
- *               company_name:
- *                 type: string
- *                 example: Distribuidora Andina S.A.C.
- *               ruc_or_dni:
- *                 type: string
- *                 example: "20123456789"
- *               phone:
- *                 type: string
- *                 example: "987654321"
- *               email:
- *                 type: string
- *                 example: contacto@distandina.com
- *     responses:
- *       201:
- *         description: Proveedor creado exitosamente.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Proveedor creado exitosamente.
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *                     ruc_or_dni:
- *                       type: string
- *                       example: "20123456789"
- *       400:
- *         description: Datos de entrada inválidos.
- *       401:
- *         description: Token faltante, expirado o manipulado.
- *       403:
- *         description: Permisos insuficientes para esta acción.
- *       409:
- *         description: Ya existe un proveedor con ese RUC o DNI.
- */
+// GET /providers/:id
+router.get(
+  "/:id",
+  authenticateJWT,
+  permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
+  validate(providerIdSchema, "params"),
+  getProviderByID,
+);
+
+// POST /providers
 router.post(
   "/",
   authenticateJWT,
@@ -239,68 +57,7 @@ router.post(
   createProvider,
 );
 
-/**
- * @openapi
- * /providers/{id}:
- *   put:
- *     summary: Actualizar un proveedor existente
- *     description: Actualiza los datos de un proveedor. Solo accesible para roles OWNER, ADMIN o DEV.
- *     tags:
- *       - Proveedores
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID numérico del proveedor a actualizar.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               company_name:
- *                 type: string
- *                 example: Distribuidora Andina S.A.C.
- *               ruc_or_dni:
- *                 type: string
- *                 example: "20123456789"
- *               phone:
- *                 type: string
- *                 example: "987654321"
- *               email:
- *                 type: string
- *                 example: contacto@distandina.com
- *     responses:
- *       200:
- *         description: Proveedor actualizado exitosamente.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Proveedor actualizado exitosamente.
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *       400:
- *         description: Datos de entrada inválidos.
- *       401:
- *         description: Token faltante, expirado o manipulado.
- *       403:
- *         description: Permisos insuficientes para esta acción.
- *       404:
- *         description: El proveedor a actualizar no existe.
- */
+// PUT /providers/:id
 router.put(
   "/:id",
   authenticateJWT,
@@ -310,41 +67,7 @@ router.put(
   updateProvider,
 );
 
-/**
- * @openapi
- * /providers/{id}:
- *   delete:
- *     summary: Eliminar un proveedor
- *     description: Elimina permanentemente un proveedor del sistema. Solo accesible para roles OWNER, ADMIN o DEV.
- *     tags:
- *       - Proveedores
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID numérico del proveedor a eliminar.
- *     responses:
- *       200:
- *         description: Proveedor eliminado exitosamente.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Proveedor eliminado exitosamente.
- *       401:
- *         description: Token faltante, expirado o manipulado.
- *       403:
- *         description: Permisos insuficientes para esta acción.
- *       404:
- *         description: El proveedor a eliminar no existe.
- */
+// DELETE /providers/:id
 router.delete(
   "/:id",
   authenticateJWT,

@@ -131,7 +131,7 @@ export const createProduct = async (req, res, next) => {
     const product = await productService.createProduct(req.body, req.file);
 
     return res.status(201).json({
-      message: "Product created successfully",
+      message: "El producto se ha creado exitosamente.",
       data: formatProductImageResponse(product),
     });
   } catch (error) {
@@ -149,7 +149,7 @@ export const updateProduct = async (req, res, next) => {
     );
 
     return res.status(200).json({
-      message: "Product updated successfully",
+      message: "El producto se ha actualizado exitosamente.",
       data: formatProductImageResponse(updatedProduct),
     });
   } catch (error) {
@@ -162,7 +162,7 @@ export const deleteProduct = async (req, res, next) => {
     const { id } = req.params;
     await productService.deleteProduct(id);
     return res.status(200).json({
-      message: "Product deleted successfully",
+      message: "El producto se ha eliminado exitosamente.",
     });
   } catch (error) {
     next(error);

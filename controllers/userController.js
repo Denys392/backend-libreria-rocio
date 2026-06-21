@@ -152,7 +152,7 @@ export const updateUser = async (req, res, next) => {
         (req.body.role !== undefined || req.body.active !== undefined)
       ) {
         const err = new Error(
-          "Forbidden: No puedes alterar tu propio rol o estado de activación.",
+          "No puedes alterar tu propio rol o estado de activación.",
         );
         err.status = 403;
         throw err;
@@ -172,7 +172,7 @@ export const updateUser = async (req, res, next) => {
         req.file
       ) {
         const err = new Error(
-          "Forbidden: Como administrador, no puedes modificar los datos personales ni la foto de otros usuarios.",
+          "No puedes modificar los datos personales ni la foto de otros usuarios.",
         );
         err.status = 403;
         throw err;
@@ -183,7 +183,7 @@ export const updateUser = async (req, res, next) => {
       if (req.body.active !== undefined) filteredBody.active = req.body.active;
     } else {
       const err = new Error(
-        "Forbidden: No tienes permiso para modificar los datos de otro usuario.",
+        "No tienes permiso para modificar los datos de otro usuario.",
       );
       err.status = 403;
       throw err;
@@ -191,7 +191,7 @@ export const updateUser = async (req, res, next) => {
 
     if (Object.keys(filteredBody).length === 0) {
       const err = new Error(
-        "Bad Request: No se enviaron campos válidos o permitidos para actualizar.",
+        "No se enviaron campos válidos o permitidos para actualizar.",
       );
       err.status = 400;
       throw err;

@@ -9,7 +9,7 @@ export const userService = {
   async getUserProfile(userId) {
     const user = await userRepository.findProfileById(userId);
     if (!user) {
-      const err = new Error("User not found");
+      const err = new Error("Usuario no encontrado.");
       err.status = 404;
       throw err;
     }
