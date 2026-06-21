@@ -1,18 +1,10 @@
 import { providerService } from "../services/providerService.js";
 
-const validateIdInt = (id) => {
-  if (!id || isNaN(parseInt(id))) {
-    const err = new Error("Invalid provider ID");
-    err.status = 400;
-    throw err;
-  }
-};
-
 export const createProvider = async (req, res, next) => {
   try {
     const provider = await providerService.createProvider(req.body);
     return res.status(201).json({
-      message: "Provider created successfully",
+      message: "Proveedor creado exitosamente.",
       data: provider,
     });
   } catch (error) {
@@ -24,7 +16,7 @@ export const getProviderByDocument = async (req, res, next) => {
   try {
     const { identifier } = req.params;
     if (!identifier) {
-      const err = new Error("RUC or DNI identifier is required");
+      const err = new Error("El identificador RUC o DNI es obligatorio.");
       err.status = 400;
       throw err;
     }
@@ -47,7 +39,6 @@ export const getAllProviders = async (req, res, next) => {
 export const getProviderByID = async (req, res, next) => {
   try {
     const { id } = req.params;
-    validateIdInt(id);
     const provider = await providerService.getProviderById(id);
     return res.status(200).json(provider);
   } catch (error) {
@@ -58,10 +49,9 @@ export const getProviderByID = async (req, res, next) => {
 export const updateProvider = async (req, res, next) => {
   try {
     const { id } = req.params;
-    validateIdInt(id);
     const updatedProvider = await providerService.updateProvider(id, req.body);
     return res.status(200).json({
-      message: "Provider updated successfully",
+      message: "Proveedor actualizado exitosamente.",
       data: updatedProvider,
     });
   } catch (error) {
@@ -72,10 +62,9 @@ export const updateProvider = async (req, res, next) => {
 export const deleteProvider = async (req, res, next) => {
   try {
     const { id } = req.params;
-    validateIdInt(id);
     await providerService.deleteProvider(id);
     return res.status(200).json({
-      message: "Provider deleted successfully",
+      message: "Proveedor eliminado exitosamente.",
     });
   } catch (error) {
     next(error);

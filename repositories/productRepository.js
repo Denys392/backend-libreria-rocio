@@ -1,13 +1,18 @@
 import { Op } from "sequelize";
-import { Product } from "../models/model.index.js";
+import { Product, Category } from "../models/model.index.js";
 
 export const productRepository = {
   findById(id, options = {}) {
-    return Product.findByPk(id, options);
-  },
-
-  findAll(options = {}) {
-    return Product.findAll(options);
+    return Product.findByPk(id, {
+      include: [
+        {
+          model: Category,
+          as: "category",
+          attributes: ["id", "name"],
+        },
+      ],
+      ...options,
+    });
   },
 
   findByName(name, options = {}) {
@@ -43,14 +48,79 @@ export const productRepository = {
     return Product.destroy({ where: { id }, ...options });
   },
 
-  findPublicProducts(options = {}) {
-    return Product.findAll({
-      where: {
-        price: {
-          [Op.ne]: null
-        }
-      },
-      ...options
+  async findPublicProducts(
+    { search = "", limit = 10, page = 1 },
+    options = {},
+  ) {
+    const whereCondition = {
+      price: { [Op.ne]: null },
+    };
+
+    if (search && search.trim() !== "") {
+      whereCondition.name = { [Op.substring]: search.trim() };
+    }
+
+    const offset = (page - 1) * limit;
+
+    return await Product.findAndCountAll({
+      where: whereCondition,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [["name", "ASC"]],
+      ...options,
     });
-  }
+  },
+
+  async findAll({ search = "", limit = 10, page = 1 }, options = {}) {
+    const whereCondition = {};
+
+    if (search && search.trim() !== "") {
+      whereCondition.name = { [Op.substring]: search.trim() };
+    }
+
+    const offset = (page - 1) * limit;
+
+    return await Product.findAndCountAll({
+      where: whereCondition,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      ...options,
+    });
+  },
+
+  async findCatalogByCategories(options = {}) {
+    return await Category.findAll({
+      order: [["name", "ASC"]],
+      include: [
+        {
+          model: Product,
+          as: "products",
+          where: { price: { [Op.ne]: null } },
+          required: false,
+        },
+      ],
+      ...options,
+    });
+  },
+
+  async incrementStock(id, quantity, transaction = null) {
+    const product = await Product.findByPk(id);
+    if (!product) throw new Error("Producto no encontrado");
+    return await product.increment("stock", { by: quantity, transaction });
+  },
+
+  async decrementStock(id, quantity, transaction = null) {
+    const product = await Product.findByPk(id);
+    if (!product) throw new Error("Producto no encontrado");
+
+    if (product.stock < quantity) {
+      const err = new Error(
+        `Stock insuficiente para el producto: ${product.name}`,
+      );
+      err.status = 400;
+      throw err;
+    }
+
+    return await product.decrement("stock", { by: quantity, transaction });
+  },
 };

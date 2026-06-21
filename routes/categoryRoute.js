@@ -2,6 +2,9 @@ import { Router } from "express";
 import { authenticateJWT } from "../middleware/authMiddleware.js";
 import { permitRoles } from "../middleware/roleMiddleware.js";
 import { ROLES } from "../utils/roles.js";
+import validate from "../middleware/validateMiddleware.js";
+import { uploadImage } from "../middleware/uploadMiddleware.js";
+import { createCategorySchema, updateCategorySchema, categoryIdSchema } from "../utils/schemas/categorySchema.js";
 
 import {
   createCategory,
@@ -15,12 +18,14 @@ const router = Router();
 
 //categories
 router.get("/", getAllCategories);
-router.get("/:id", getCategoryByID);
+router.get("/:id", validate(categoryIdSchema, "params"), getCategoryByID);
 
 router.post(
   "/",
   authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
+  uploadImage.single("image"),
+  validate(createCategorySchema, "body"),
   createCategory,
 );
 
@@ -28,6 +33,9 @@ router.put(
   "/:id",
   authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
+  uploadImage.single("image"),
+  validate(categoryIdSchema, "params"),
+  validate(updateCategorySchema, "body"),
   updateCategory,
 );
 
@@ -35,6 +43,7 @@ router.delete(
   "/:id",
   authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
+  validate(categoryIdSchema, "params"),
   deleteCategory,
 );
 

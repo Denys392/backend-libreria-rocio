@@ -4,7 +4,7 @@ import { sequelize, Role } from "../models/model.index.js";
 import { authRepository } from "../repositories/authRepository.js";
 import { ROLES } from "../utils/roles.js";
 
-const ACCESS_EXPIRES_IN = "15m";
+const ACCESS_EXPIRES_IN = "60m";
 const REFRESH_EXPIRES_IN = "7d";
 const REFRESH_MS = 7 * 24 * 60 * 60 * 1000;
 

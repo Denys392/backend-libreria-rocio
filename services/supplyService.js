@@ -1,3 +1,4 @@
+import { authRepository } from "../repositories/authRepository.js";
 import { supplyRepository } from "../repositories/supplyRepository.js";
 import { productRepository } from "../repositories/productRepository.js";
 
@@ -5,14 +6,27 @@ export const supplyService = {
   async registerPurchase(purchaseData) {
     const { provider_id, user_id, items } = purchaseData;
 
+    if (user_id) {
+      const userExists = await authRepository.findUserById(user_id);
+      if (!userExists) {
+        const err = new Error(
+          `Operación inválida: El usuario administrativo con ID ${user_id} no existe en el sistema.`,
+        );
+        err.status = 401;
+        throw err;
+      }
+    }
+
     if (!provider_id || isNaN(parseInt(provider_id))) {
-      const err = new Error("A valid provider_id is required");
+      const err = new Error(
+        "Se requiere un ID de proveedor (provider_id) válido.",
+      );
       err.status = 400;
       throw err;
     }
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-      const err = new Error("Purchase must include at least one product item");
+      const err = new Error("La compra debe incluir al menos un producto.");
       err.status = 400;
       throw err;
     }
@@ -21,12 +35,12 @@ export const supplyService = {
 
     for (const item of items) {
       if (!item.product_id || isNaN(parseInt(item.product_id))) {
-        const err = new Error("Each item must have a valid product_id");
+        const err = new Error("Cada elemento debe tener un product_id válido.");
         err.status = 400;
         throw err;
       }
       if (!item.quantity || parseInt(item.quantity) <= 0) {
-        const err = new Error("Quantity must be greater than 0");
+        const err = new Error("La cantidad debe ser mayor a 0.");
         err.status = 400;
         throw err;
       }
@@ -34,7 +48,7 @@ export const supplyService = {
         item.purchase_price === undefined ||
         parseFloat(item.purchase_price) < 0
       ) {
-        const err = new Error("Purchase price cannot be negative");
+        const err = new Error("El precio de compra no puede ser negativo.");
         err.status = 400;
         throw err;
       }
@@ -42,7 +56,7 @@ export const supplyService = {
       const productExists = await productRepository.findById(item.product_id);
       if (!productExists) {
         const err = new Error(
-          `Product with ID ${item.product_id} does not exist`,
+          `El producto con ID ${item.product_id} no existe.`,
         );
         err.status = 404;
         throw err;

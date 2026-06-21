@@ -2,6 +2,15 @@ import { Router } from "express";
 import { authenticateJWT } from "../middleware/authMiddleware.js";
 import { permitRoles } from "../middleware/roleMiddleware.js";
 import { ROLES } from "../utils/roles.js";
+import validate from "../middleware/validateMiddleware.js";
+
+import {
+  dashboardReportSchema,
+  lowStockReportSchema,
+  dateRangeReportSchema,
+  limitReportSchema
+} from "../utils/schemas/reportSchema.js";
+
 import {
   getDashboardReport,
   getLowStockReport,
@@ -12,37 +21,38 @@ import {
 
 const router = Router();
 
+router.use(authenticateJWT);
+
 router.get(
   "/dashboard",
-  authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV, ROLES.MANAGER),
+  validate(dashboardReportSchema, "query"), 
   getDashboardReport,
 );
 
 router.get(
   "/low-stock",
-  authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV, ROLES.MANAGER),
+  validate(lowStockReportSchema, "query"),
   getLowStockReport,
 );
 
 router.get(
   "/sales-by-document",
-  authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
+  validate(dateRangeReportSchema, "query"),
   getSalesByDocument,
 );
 
 router.get(
   "/top-customers",
-  authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
+  validate(limitReportSchema, "query"),
   getTopCustomers,
 );
 
 router.get(
   "/category-performance",
-  authenticateJWT,
   permitRoles(ROLES.OWNER, ROLES.ADMIN, ROLES.DEV),
   getCategoryPerformance,
 );

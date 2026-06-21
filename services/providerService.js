@@ -4,7 +4,7 @@ export const providerService = {
   async getProviderById(id) {
     const provider = await providerRepository.findById(id);
     if (!provider) {
-      const err = new Error("Provider not found");
+      const err = new Error("El proveedor solicitado no existe.");
       err.status = 404;
       throw err;
     }
@@ -18,7 +18,7 @@ export const providerService = {
 
   async createProvider(providerData) {
     if (!providerData.ruc_or_dni || providerData.ruc_or_dni.trim() === "") {
-      const err = new Error("RUC or DNI is required");
+      const err = new Error("El RUC o DNI es obligatorio.");
       err.status = 400;
       throw err;
     }
@@ -31,7 +31,9 @@ export const providerService = {
     const existingProvider =
       await providerRepository.findByRucOrDni(normalizedIdentifier);
     if (existingProvider) {
-      const err = new Error("A provider with this RUC or DNI already exists");
+      const err = new Error(
+        "Ya existe un proveedor registrado con este RUC o DNI.",
+      );
       err.status = 409;
       throw err;
     }
@@ -53,7 +55,7 @@ export const providerService = {
 
     if (providerData.ruc_or_dni !== undefined) {
       if (!providerData.ruc_or_dni || providerData.ruc_or_dni.trim() === "") {
-        const err = new Error("RUC or DNI cannot be empty");
+        const err = new Error("El RUC o DNI no puede estar vacío.");
         err.status = 400;
         throw err;
       }
@@ -63,7 +65,9 @@ export const providerService = {
         await providerRepository.findByRucOrDni(normalizedIdentifier);
 
       if (existingProvider && existingProvider.id !== parseInt(id)) {
-        const err = new Error("A provider with this RUC or DNI already exists");
+        const err = new Error(
+          "Ya existe otro proveedor registrado con este RUC o DNI.",
+        );
         err.status = 409;
         throw err;
       }
@@ -91,7 +95,7 @@ export const providerService = {
 
   async getProviderByRucOrDni(identifier) {
     if (!identifier || identifier.trim() === "") {
-      const err = new Error("RUC or DNI identifier is required");
+      const err = new Error("El identificador RUC o DNI es obligatorio.");
       err.status = 400;
       throw err;
     }
@@ -99,7 +103,9 @@ export const providerService = {
     const provider = await providerRepository.findByRucOrDni(identifier.trim());
 
     if (!provider) {
-      const err = new Error(`Provider with RUC/DNI '${identifier}' not found`);
+      const err = new Error(
+        `No se encontró ningún proveedor con el RUC/DNI '${identifier}'.`,
+      );
       err.status = 404;
       throw err;
     }

@@ -22,6 +22,11 @@ UserProfile.init(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
+    imagen: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      defaultValue: null,
+    },
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
